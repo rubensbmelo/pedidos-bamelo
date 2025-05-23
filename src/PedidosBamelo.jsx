@@ -10,8 +10,8 @@ export default function PedidosBamelo() {
         flexDirection: 'column',
         padding: '20px 0'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <img src="/logo.png" alt="Logo" style={{ width: '60px', height: '60px' }} />
+        <div style={{ textAlign: 'center', marginBottom: '30px' }}>
+          <img src="/logo.png" alt="Logo" style={{ width: '120px', height: 'auto' }} />
           <h3 style={{ marginTop: '10px', fontSize: '16px' }}>BAMELO</h3>
         </div>
         <nav style={{ display: 'flex', flexDirection: 'column', gap: '15px', padding: '0 20px' }}>

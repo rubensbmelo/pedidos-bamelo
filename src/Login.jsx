@@ -17,13 +17,13 @@ export default function Login() {
       background: 'linear-gradient(160deg, #5e2d24, #8b1c1c)',
       fontFamily: 'Arial, sans-serif'
     }}>
-      <img src="/logo.png" alt="Logo" style={{ width: '150px', marginBottom: '30px' }} />
+      <img src="/logo.png" alt="Logo" style={{ width: '340px', marginBottom: '40px' }} />
       <form onSubmit={handleLogin} style={{
         backgroundColor: '#fff',
         padding: '30px',
         borderRadius: '12px',
         boxShadow: '0 0 12px rgba(0,0,0,0.2)',
-        width: '300px',
+        width: '320px',
         display: 'flex',
         flexDirection: 'column',
         gap: '15px'

@@ -1,7 +1,6 @@
 export default function PedidosBamelo() {
   return (
     <div style={{ display: 'flex', height: '100vh', fontFamily: 'Arial, sans-serif' }}>
-      {/* Menu lateral */}
       <div style={{
         width: '240px',
         background: 'linear-gradient(180deg, #5e2d24, #8b1c1c)',
@@ -25,7 +24,7 @@ export default function PedidosBamelo() {
           </nav>
         </div>
         <div style={{ textAlign: 'center', padding: '20px' }}>
-          <button onClick={() => window.location.href = '/'} style={{
+          <button onClick={() => window.location.href = '/login'} style={{
             backgroundColor: '#a11212',
             color: 'white',
             padding: '10px 20px',
@@ -38,10 +37,7 @@ export default function PedidosBamelo() {
           </button>
         </div>
       </div>
-
-      {/* Conteúdo principal */}
       <div style={{ flexGrow: 1, backgroundColor: '#f9f9f9' }}>
-        {/* Cabeçalho */}
         <div style={{
           backgroundColor: '#8b1c1c',
           color: '#fff',
@@ -51,8 +47,6 @@ export default function PedidosBamelo() {
         }}>
           Bem-vindo ao sistema Pedidos Bamelo
         </div>
-
-        {/* Área de conteúdo */}
         <div style={{ padding: '30px' }}>
           <p style={{ color: '#555' }}>Escolha uma opção no menu para começar.</p>
         </div>

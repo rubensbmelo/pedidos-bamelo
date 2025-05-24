@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 
-export default function Login() {
+export default function Login({ onLogin }) {
   const navigate = useNavigate();
+
   const handleLogin = (e) => {
     e.preventDefault();
-    navigate('/');
+    onLogin(); // <- isso ativa o login no App.jsx
+    navigate('/home'); // vai para o menu principal
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 
@@ -10,17 +11,10 @@ function Pedidos() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/carteira-pedidos.xlsm');
+        const response = await fetch('/carteira-pedidos.xlsx');
         const arrayBuffer = await response.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
-
-        // Tenta carregar a aba 'BASE'
-        const worksheet = workbook.Sheets['BASE'];
-        if (!worksheet) {
-          console.error("A aba 'BASE' não foi encontrada na planilha.");
-          return;
-        }
-
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         setData(jsonData);
 
@@ -42,8 +36,8 @@ function Pedidos() {
   const extrairMes = (dataStr) => {
     if (!dataStr || typeof dataStr !== 'string') return '';
     const partes = dataStr.split('/');
-    if (partes.length < 2) return '';
-    return nomeMes[partes[1]];
+    if (partes.length !== 3) return '';
+    return nomeMes[partes[1]] || '';
   };
 
   const meses = Array.from(new Set(data.map(item => extrairMes(item.Data)))).filter(Boolean).sort((a, b) => {
@@ -61,7 +55,7 @@ function Pedidos() {
     <div className="p-6">
       <h1 className="text-2xl font-bold text-[#7c2d12] mb-4">Pedidos Implantados</h1>
 
-      <div className="flex flex-wrap gap-4 mb-4">
+      <div className="flex gap-4 mb-4">
         <div>
           <label className="font-semibold mr-2">Filtrar por Cliente:</label>
           <select
@@ -95,19 +89,9 @@ function Pedidos() {
         <table className="min-w-full table-auto border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-4 py-2 border">Pedido</th>
-              <th className="px-4 py-2 border">Produto</th>
-              <th className="px-4 py-2 border">OC/Item OC</th>
-              <th className="px-4 py-2 border">Referência</th>
-              <th className="px-4 py-2 border">Cliente</th>
-              <th className="px-4 py-2 border">Data</th>
-              <th className="px-4 py-2 border">PESO</th>
-              <th className="px-4 py-2 border">Qtde</th>
-              <th className="px-4 py-2 border">Vl.</th>
-              <th className="px-4 py-2 border">Fator</th>
-              <th className="px-4 py-2 border">TOTAL</th>
-              <th className="px-4 py-2 border">COMISSÃO</th>
-              <th className="px-4 py-2 border">FATURADO</th>
+              {['Pedido','Produto','OC/Item OC','Referência','Cliente','Data','PESO','Qtde','Vl.','Fator','TOTAL','COMISSÃO','FATURADO'].map(col => (
+                <th key={col} className="px-4 py-2 border">{col}</th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -115,16 +99,16 @@ function Pedidos() {
               <tr key={index} className="text-sm">
                 <td className="px-4 py-2 border">{pedido.Pedido}</td>
                 <td className="px-4 py-2 border">{pedido.Produto}</td>
-                <td className="px-4 py-2 border">{pedido['OC/Item OC']}</td>
+                <td className="px-4 py-2 border">{pedido["OC/Item OC"]}</td>
                 <td className="px-4 py-2 border">{pedido.Referência}</td>
                 <td className="px-4 py-2 border">{pedido.Cliente}</td>
                 <td className="px-4 py-2 border">{pedido.Data}</td>
                 <td className="px-4 py-2 border">{pedido.PESO}</td>
                 <td className="px-4 py-2 border">{pedido.Qtde}</td>
-                <td className="px-4 py-2 border">{pedido['Vl.']}</td>
+                <td className="px-4 py-2 border">{pedido["Vl."]}</td>
                 <td className="px-4 py-2 border">{pedido.Fator}</td>
                 <td className="px-4 py-2 border">{pedido.TOTAL}</td>
-                <td className="px-4 py-2 border">{pedido['COMISSÃO']}</td>
+                <td className="px-4 py-2 border">{pedido["COMISSÃO"]}</td>
                 <td className="px-4 py-2 border">{pedido.FATURADO}</td>
               </tr>
             ))}

@@ -2,85 +2,123 @@
 import React, { useEffect, useState } from 'react';
 import * as XLSX from 'xlsx';
 
-export default function Pedidos() {
-  const [dados, setDados] = useState([]);
-  const [clienteFiltro, setClienteFiltro] = useState('');
-  const [clientesUnicos, setClientesUnicos] = useState([]);
+function Pedidos() {
+  const [data, setData] = useState([]);
+  const [clientes, setClientes] = useState([]);
+  const [filtroCliente, setFiltroCliente] = useState('Todos');
+  const [filtroMes, setFiltroMes] = useState('Todos');
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch('/CARTEIRA DE PEDIDO IMPLANTADOS.xlsm');
-      const blob = await response.blob();
-      const arrayBuffer = await blob.arrayBuffer();
-      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-      const sheet = workbook.Sheets['BASE'];
-      const json = XLSX.utils.sheet_to_json(sheet);
+      try {
+        const response = await fetch('/carteira-pedidos.xlsm');
+        const arrayBuffer = await response.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
+        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        setData(jsonData);
 
-      setDados(json);
-      const clientes = [...new Set(json.map(item => item.Cliente))];
-      setClientesUnicos(clientes);
+        const clientesUnicos = Array.from(new Set(jsonData.map(item => item.Cliente))).sort();
+        setClientes(clientesUnicos);
+      } catch (error) {
+        console.error('Erro ao carregar a planilha:', error);
+      }
     };
-
     fetchData();
   }, []);
 
-  const dadosFiltrados = clienteFiltro
-    ? dados.filter(item => item.Cliente === clienteFiltro)
-    : dados;
+  const nomeMes = {
+    '01': 'Janeiro', '02': 'Fevereiro', '03': 'Março', '04': 'Abril',
+    '05': 'Maio', '06': 'Junho', '07': 'Julho', '08': 'Agosto',
+    '09': 'Setembro', '10': 'Outubro', '11': 'Novembro', '12': 'Dezembro'
+  };
+
+  const extrairMes = (dataStr) => {
+    if (!dataStr || typeof dataStr !== 'string') return '';
+    const [dia, mes] = dataStr.split('/');
+    return nomeMes[mes];
+  };
+
+  const meses = Array.from(new Set(data.map(item => extrairMes(item.Data)))).filter(Boolean).sort((a, b) => {
+    const ordem = Object.values(nomeMes);
+    return ordem.indexOf(a) - ordem.indexOf(b);
+  });
+
+  const dadosFiltrados = data.filter(item => {
+    const clienteMatch = filtroCliente === 'Todos' || item.Cliente === filtroCliente;
+    const mesMatch = filtroMes === 'Todos' || extrairMes(item.Data) === filtroMes;
+    return clienteMatch && mesMatch;
+  });
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif', fontSize: '14px' }}>
-      <h2 style={{ marginBottom: '20px', color: '#7a1f1f' }}>Pedidos Implantados</h2>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold text-[#7c2d12] mb-4">Pedidos Implantados</h1>
 
-      <div style={{ marginBottom: '20px' }}>
-        <label style={{ marginRight: '10px' }}>Filtrar por Cliente:</label>
-        <select
-          value={clienteFiltro}
-          onChange={e => setClienteFiltro(e.target.value)}
-          style={{ padding: '5px 10px', borderRadius: '4px', border: '1px solid #ccc' }}
-        >
-          <option value="">Todos</option>
-          {clientesUnicos.map(cliente => (
-            <option key={cliente} value={cliente}>{cliente}</option>
-          ))}
-        </select>
+      <div className="flex gap-4 mb-4">
+        <div>
+          <label className="font-semibold mr-2">Filtrar por Cliente:</label>
+          <select
+            value={filtroCliente}
+            onChange={(e) => setFiltroCliente(e.target.value)}
+            className="border border-gray-300 rounded px-2 py-1"
+          >
+            <option>Todos</option>
+            {clientes.map(cliente => (
+              <option key={cliente}>{cliente}</option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="font-semibold mr-2">Filtrar por Mês:</label>
+          <select
+            value={filtroMes}
+            onChange={(e) => setFiltroMes(e.target.value)}
+            className="border border-gray-300 rounded px-2 py-1"
+          >
+            <option>Todos</option>
+            {meses.map(mes => (
+              <option key={mes}>{mes}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ borderCollapse: 'collapse', width: '100%', minWidth: '1200px' }}>
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse">
           <thead>
-            <tr style={{ backgroundColor: '#f0f0f0', fontWeight: 'bold', textAlign: 'center' }}>
-              <th style={th}>Pedido</th>
-              <th style={th}>Cliente</th>
-              <th style={th}>Produto</th>
-              <th style={th}>OC/Item OC</th>
-              <th style={th}>Referência</th>
-              <th style={th}>Data</th>
-              <th style={th}>PESO (t)</th>
-              <th style={th}>Qtde</th>
-              <th style={th}>Vl.</th>
-              <th style={th}>Fator</th>
-              <th style={th}>TOTAL</th>
-              <th style={th}>COMISSÃO</th>
-              <th style={th}>FATURADO</th>
+            <tr className="bg-gray-100">
+              <th className="px-4 py-2 border">Pedido</th>
+              <th className="px-4 py-2 border">Produto</th>
+              <th className="px-4 py-2 border">OC/Item OC</th>
+              <th className="px-4 py-2 border">Referência</th>
+              <th className="px-4 py-2 border">Cliente</th>
+              <th className="px-4 py-2 border">Data</th>
+              <th className="px-4 py-2 border">PESO</th>
+              <th className="px-4 py-2 border">Qtde</th>
+              <th className="px-4 py-2 border">Vl.</th>
+              <th className="px-4 py-2 border">Fator</th>
+              <th className="px-4 py-2 border">TOTAL</th>
+              <th className="px-4 py-2 border">COMISSÃO</th>
+              <th className="px-4 py-2 border">FATURADO</th>
             </tr>
           </thead>
           <tbody>
-            {dadosFiltrados.map((item, index) => (
-              <tr key={index}>
-                <td style={td}>{item.Pedido}</td>
-                <td style={td}>{item.Cliente}</td>
-                <td style={td}>{item.Produto}</td>
-                <td style={td}>{item['OC/Item OC']}</td>
-                <td style={td}>{item.Referência}</td>
-                <td style={td}>{item.Data?.slice(0, 10)}</td>
-                <td style={td}>{item.PESO?.toString().replace('.', ',')}</td>
-                <td style={td}>{Number(item.Qtde).toLocaleString('pt-BR')}</td>
-                <td style={td}>{item['Vl.']}</td>
-                <td style={td}>{item.Fator}</td>
-                <td style={td}>{item.TOTAL}</td>
-                <td style={td}>{item['COMISSÃO']}</td>
-                <td style={td}>{item.FATURADO?.toString().toLowerCase() === 'sim' ? 'Sim' : 'Não'}</td>
+            {dadosFiltrados.map((pedido, index) => (
+              <tr key={index} className="text-sm">
+                <td className="px-4 py-2 border">{pedido.Pedido}</td>
+                <td className="px-4 py-2 border">{pedido.Produto}</td>
+                <td className="px-4 py-2 border">{pedido['OC/Item OC']}</td>
+                <td className="px-4 py-2 border">{pedido.Referência}</td>
+                <td className="px-4 py-2 border">{pedido.Cliente}</td>
+                <td className="px-4 py-2 border">{pedido.Data}</td>
+                <td className="px-4 py-2 border">{pedido.PESO}</td>
+                <td className="px-4 py-2 border">{pedido.Qtde}</td>
+                <td className="px-4 py-2 border">{pedido.Vl}</td>
+                <td className="px-4 py-2 border">{pedido.Fator}</td>
+                <td className="px-4 py-2 border">{pedido.TOTAL}</td>
+                <td className="px-4 py-2 border">{pedido.COMISSÃO}</td>
+                <td className="px-4 py-2 border">{pedido.FATURADO}</td>
               </tr>
             ))}
           </tbody>
@@ -90,15 +128,4 @@ export default function Pedidos() {
   );
 }
 
-const th = {
-  padding: '8px',
-  border: '1px solid #ccc',
-  whiteSpace: 'nowrap'
-};
-
-const td = {
-  padding: '8px',
-  border: '1px solid #eee',
-  textAlign: 'left',
-  wordBreak: 'break-word'
-};
+export default Pedidos;

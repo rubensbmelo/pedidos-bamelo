@@ -7,7 +7,7 @@ function Pedidos() {
   const [mesFiltro, setMesFiltro] = useState("Todos");
 
   useEffect(() => {
-    fetch("/pedidos.json")
+    fetch("https://pedidos-bamelo.vercel.app/pedidos.json")
       .then((response) => response.json())
       .then((data) => {
         console.log("📦 Dados carregados:", data);

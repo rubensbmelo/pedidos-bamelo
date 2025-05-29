@@ -1,6 +1,4 @@
-
 import React, { useEffect, useState } from 'react';
-import * as XLSX from 'xlsx';
 
 function Pedidos() {
   const [data, setData] = useState([]);
@@ -11,17 +9,15 @@ function Pedidos() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/carteira-pedidos.xlsx');
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'buffer' });
-        const worksheet = workbook.Sheets[workbook.SheetNames[0]];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        // Usar o arquivo JSON em vez do Excel
+        const response = await fetch('/pedidos.json');
+        const jsonData = await response.json();
         setData(jsonData);
 
         const clientesUnicos = Array.from(new Set(jsonData.map(item => item.Cliente))).sort();
         setClientes(clientesUnicos);
       } catch (error) {
-        console.error('Erro ao carregar a planilha:', error);
+        console.error('Erro ao carregar os dados:', error);
       }
     };
     fetchData();
